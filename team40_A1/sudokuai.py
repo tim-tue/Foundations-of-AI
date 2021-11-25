@@ -116,25 +116,29 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
             @param depth: The corresponding depth within the tree.
             @param isMaximisingPlayer: True/False indicator for min/max search.
             @Return: return the best possible next move according to the minimax
+
+            ONLY WORKS FOR DEPTH == 2 YET
             """
+
             if depth == 2:
-                return evaluate_board(board)
+                return evaluate_board(board) #returned value: the board after the 'best' move from opponent.
 
             all_moves_list = possible(board)
 
             if isMaximisingPlayer:
                 value = -math.inf
-                for move in all_moves_list:
-                    board.put(move.i, move.j, move.value)
-                    value = max(value, minimax(board, depth+1, False, board))
-
-                    if depth == 0:
+                for move in all_moves_list:                                     #go over all possible moves our player can play
+                    board.put(move.i, move.j, move.value)                       #actually play the move in the board
+                    value = max(value, minimax(board, depth+1, False, board))   #recursive call to find all values after analyzing all possibles moves from opponennt (when depth==2 is used)
+                                                                                #the last board in the function call is the board with the move implented, so in else statement this board can be reseted.
+                    if depth == 0:                             #you only come here when depth ==0.
                         self.minmaxlst.append([value,move])
                     else:
                         print('Cannot visit this spot as long as depth=2 is the end')
 
-                    board = copy.deepcopy(game_state.board)
-                return value
+                    board = copy.deepcopy(game_state.board)    #reset the board to the one the game behaves now, in order to analyze the effects of the next possible move
+
+                return value                                   #the returned value is now the best value for you, after analyzing the opponents best responses to your moves
 
             else:
                 value = +math.inf
@@ -153,7 +157,7 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         best_moves = []
         for row in self.minmaxlst:
             if row[0] == final_move:
-                if row[1] in possible_moves:
+                if row[1] in possible_moves:                   #last check that only moves are used that are legal
                     best_moves.append(row[1])
 
         next_move = random.choice(best_moves)
